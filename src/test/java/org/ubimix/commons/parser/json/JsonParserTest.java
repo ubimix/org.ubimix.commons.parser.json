@@ -16,14 +16,13 @@ import java.util.Stack;
 
 import junit.framework.TestCase;
 
-import org.ubimix.commons.parser.json.JsonParser.JsonParserListener;
 
 /**
  * @author kotelnikov
  */
 public class JsonParserTest extends TestCase {
 
-    protected static class TestJsonParserListener extends JsonParserListener {
+    protected static class TestJsonParserListener extends JsonListener {
 
         private final StringBuilder fBuf;
 
