@@ -16,6 +16,7 @@ import java.util.Stack;
 
 import junit.framework.TestCase;
 
+import org.ubimix.commons.parser.AbstractParser;
 
 /**
  * @author kotelnikov
@@ -135,6 +136,10 @@ public class JsonParserTest extends TestCase {
         super(name);
     }
 
+    protected JsonParser newJsonParser() {
+        return new JsonParser();
+    }
+
     public void test() {
         test("{\"a\":{\n},\n\"b\":\"C\"\n}", ""
             + "{"
@@ -230,7 +235,7 @@ public class JsonParserTest extends TestCase {
     }
 
     private void test(String str, String control) {
-        JsonParser parser = new JsonParser();
+        IJsonParser parser = newJsonParser();
         TestJsonParserListener listener = new TestJsonParserListener();
         parser.parse(str, listener);
         System.out.println(str + " => " + listener.toString());
@@ -238,42 +243,49 @@ public class JsonParserTest extends TestCase {
     }
 
     public void testErrors() {
-        testErrors("{", "{", "The '}' symbol expected. Pos: 1[0:1]");
-        testErrors("{\n", "{", "The '}' symbol expected. Pos: 2[1:0]");
-        testErrors("{ x: ", "{<x>", "Property value is expected. Pos: 5[0:5]");
-        testErrors("{ x: }", "{<x>", "Property value is expected. Pos: 6[0:6]");
-        testErrors(
-            "{ x: ''",
-            "{<x></x>",
-            "The '}' symbol expected. Pos: 7[0:7]");
+        testErrors("{", "{", "The '}' symbol expected.", "1[0:1]");
+        testErrors("{\n", "{", "The '}' symbol expected.", "2[1:0]");
+        testErrors("{ x: ", "{<x>", "Property value is expected.", "5[0:5]");
+        testErrors("{ x: }", "{<x>", "Property value is expected.", "6[0:6]");
+        testErrors("{ x: ''", "{<x></x>", "The '}' symbol expected.", "7[0:7]");
         testErrors(
             "{ x: [ y ",
             "{<x>[(y)",
-            "The ']' symbol expected. Pos: 9[0:9]");
+            "The ']' symbol expected.",
+            "9[0:9]");
         testErrors(
             "{ x:'n'} toto",
             "{<x>n</x>}",
-            "The end of the stream is expected. Pos: 8[0:8]");
+            "The end of the stream is expected.",
+            "8[0:8]");
     }
 
-    private void testErrors(String str, String control, String msg) {
+    private void testErrors(
+        String str,
+        String control,
+        String msg,
+        String posControl) {
         TestJsonParserListener listener = new TestJsonParserListener();
         listener.setReportErrors(true);
         try {
-            JsonParser parser = new JsonParser();
+            IJsonParser parser = newJsonParser();
             parser.parse(str, listener);
             fail();
         } catch (IllegalStateException e) {
             assertEquals(control, listener.toString());
-            String message = e.getMessage();
+            assertTrue(e instanceof AbstractParser.ParseError);
+            AbstractParser.ParseError parseError = (AbstractParser.ParseError) e;
+            String message = parseError.getMessage();
             assertEquals(msg, message);
+            String posStr = parseError.getPointer() + "";
+            assertEquals(posControl, posStr);
         }
     }
 
     public void testPrintQuery() {
         String str = "{\"ResultSet\":{\"totalResultsAvailable\":\"415870\",\"totalResultsReturned\":2,\"firstResultPosition\":1,\"Result\":[{\"Title\":\"potato.jpg\",\"Summary\":\"Exclude Chit Chat \\u2014 The Introducer at 8:26 pm on Saturday, October 21, 2006 The OFT transferring PPI to the Competition Commission could be seen as getting rid of a Hot Potato - but it was a struggle to find a picture of a potato that looked  Hot  I've had a first\",\"Url\":\"http:\\/\\/www.we-introduce-you.co.uk\\/theintroducer\\/wp-content\\/potato.jpg\",\"ClickUrl\":\"http:\\/\\/www.we-introduce-you.co.uk\\/theintroducer\\/wp-content\\/potato.jpg\",\"RefererUrl\":\"http:\\/\\/www.we-introduce-you.co.uk\\/theintroducer\\/90_the-hot-potato-of-payment-protection-insurance\",\"FileSize\":5632,\"FileFormat\":\"jpeg\",\"Height\":\"225\",\"Width\":\"225\",\"Thumbnail\":{\"Url\":\"http:\\/\\/sp1.yt-thm-a01.yimg.com\\/image\\/25\\/m3\\/2697440748\",\"Height\":\"130\",\"Width\":\"130\"}},{\"Title\":\"Long_White_Potato_826.JPG\",\"Summary\":\"Fingerling_Potato_65..  04-Jun-2001 10:07 35k Idaho_Russet_Potato_..  04-Jun-2001 10:07 24k Long_White_Potato_82..  04-Jun-2001 10:07 29k New_Potato_661.JPG 04-Jun-2001 10:07 33k\",\"Url\":\"http:\\/\\/www.gothamstudio.com\\/images\\/Vegetables\\/Potatos\\/Long_White_Potato_826.JPG\",\"ClickUrl\":\"http:\\/\\/www.gothamstudio.com\\/images\\/Vegetables\\/Potatos\\/Long_White_Potato_826.JPG\",\"RefererUrl\":\"http:\\/\\/www.gothamstudio.com\\/images\\/Vegetables\\/Potatos\",\"FileSize\":29184,\"FileFormat\":\"jpeg\",\"Height\":\"342\",\"Width\":\"504\",\"Thumbnail\":{\"Url\":\"http:\\/\\/sp1.yt-thm-a01.yimg.com\\/image\\/25\\/m4\\/2958963693\",\"Height\":\"98\",\"Width\":\"145\"}}]}}";
         TestJsonParserListener listener = new TestJsonParserListener();
-        JsonParser parser = new JsonParser();
+        IJsonParser parser = newJsonParser();
         parser.parse(str, listener);
         System.out.println(str + "\n\n" + listener.toString());
     }
