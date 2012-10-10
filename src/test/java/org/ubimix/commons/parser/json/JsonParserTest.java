@@ -140,6 +140,10 @@ public class JsonParserTest extends TestCase {
         return new JsonParser();
     }
 
+    protected void println(String string) {
+        // System.out.println(string);
+    }
+
     public void test() {
         test("{\"a\":{\n},\n\"b\":\"C\"\n}", ""
             + "{"
@@ -238,7 +242,7 @@ public class JsonParserTest extends TestCase {
         IJsonParser parser = newJsonParser();
         TestJsonParserListener listener = new TestJsonParserListener();
         parser.parse(str, listener);
-        System.out.println(str + " => " + listener.toString());
+        println(str + " => " + listener.toString());
         assertEquals(control, listener.toString());
     }
 
@@ -287,7 +291,7 @@ public class JsonParserTest extends TestCase {
         TestJsonParserListener listener = new TestJsonParserListener();
         IJsonParser parser = newJsonParser();
         parser.parse(str, listener);
-        System.out.println(str + "\n\n" + listener.toString());
+        println(str + "\n\n" + listener.toString());
     }
 
 }

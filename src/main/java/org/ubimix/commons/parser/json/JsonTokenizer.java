@@ -5,6 +5,7 @@ package org.ubimix.commons.parser.json;
 
 import org.ubimix.commons.parser.CompositeTokenizer;
 import org.ubimix.commons.parser.StreamToken;
+import org.ubimix.commons.parser.base.EscTokenizer;
 import org.ubimix.commons.parser.base.QuotedValueTokenizer;
 import org.ubimix.commons.parser.base.SequenceTokenizer;
 import org.ubimix.commons.parser.base.SimpleTokenizer;
@@ -90,7 +91,7 @@ public class JsonTokenizer extends CompositeTokenizer {
                 return new JsonDict.BooleanToken();
             }
         });
-        addTokenizer(new SimpleTokenizer() {
+        addTokenizer(new EscTokenizer() {
             @Override
             protected boolean checkChar(char ch, int pos) {
                 if (Character.isLetterOrDigit(ch) || ch == '+' || ch == '-') {
