@@ -11,7 +11,9 @@ import org.ubimix.commons.parser.StreamToken;
 /**
  * @author kotelnikov
  */
-public class JsonParser extends AbstractParser<IJsonListener> {
+public class JsonParser extends AbstractParser<IJsonListener>
+    implements
+    IJsonParser {
 
     public static <T extends StreamToken> boolean check(
         StreamToken token,
